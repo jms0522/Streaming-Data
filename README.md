@@ -7,9 +7,9 @@
 	<br>
 	📌 다양한 이슈 관리는 [❗️issue 확인하기](https://github.com/jms0522/Streaming-Data/issues)에서 확인 가능합니다!
 <br>
-[📗git-blog](https://jms0522.github.io./)
+[git-blog](https://jms0522.github.io./)
  <br>
-[📗Notion](https://www.notion.so/b81dc8344f444b6f84dcb2696988c1b1?v=53e3c226d2514c42a1ce0b719266aeb1&pvs=12)
+[Notion](https://www.notion.so/b81dc8344f444b6f84dcb2696988c1b1?v=53e3c226d2514c42a1ce0b719266aeb1&pvs=12)
 	
 </details>
 
