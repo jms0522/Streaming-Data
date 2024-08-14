@@ -6,10 +6,10 @@
 	❗️ 자세한 프로젝트 내용은 블로그에 기술할 예정입니다. 
 	<br>
 	📌 다양한 이슈 관리는 [❗️issue 확인하기](https://github.com/jms0522/Streaming-Data/issues)에서 확인 가능합니다!
-
-	[git-blog](https://jms0522.github.io./)
- 
- 	 [Notion](https://www.notion.so/b81dc8344f444b6f84dcb2696988c1b1?v=53e3c226d2514c42a1ce0b719266aeb1&pvs=12)
+<br>
+[📗git-blog](https://jms0522.github.io./)
+ <br>
+[📗Notion](https://www.notion.so/b81dc8344f444b6f84dcb2696988c1b1?v=53e3c226d2514c42a1ce0b719266aeb1&pvs=12)
 	
 </details>
 
