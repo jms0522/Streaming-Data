@@ -70,6 +70,6 @@
 
 ## 🧑‍💻 작성자
 
-	•	Your Name - 장민수 Jangminsoo
+[장민수 Jangminsoo](https://github.com/jms0522)
 
 
