@@ -41,6 +41,8 @@
 
 
 ## 🚀 시작하기
+	git clone https://github.com/jms0522/Streaming-Data/.git
+	cd Streaming-Data
 
 ### 사전 요구사항
 
