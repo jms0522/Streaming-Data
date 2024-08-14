@@ -3,10 +3,13 @@
 멀티 파이프라인 프로젝트에 오신 것을 환영합니다! 이 리포지토리는 데이터 중심의 애플리케이션을 위해 다양한 데이터 파이프라인을 구축하고, 관리하며, 배포하는 것을 목표로 합니다.
 <details>
   <summary>자세한 프로젝트 내용 더보기</summary>
-	❗️ 자세한 프로젝트 내용은 블로그에 기술할 예정입니다.
+	❗️ 자세한 프로젝트 내용은 블로그에 기술할 예정입니다. 
+	<br>
 	📌 다양한 이슈 관리는 [❗️issue 확인하기](https://github.com/jms0522/Streaming-Data/issues)에서 확인 가능합니다!
-  [git-blog](https://jms0522.github.io./)
-  [Notion](https://www.notion.so/b81dc8344f444b6f84dcb2696988c1b1?v=53e3c226d2514c42a1ce0b719266aeb1&pvs=12)
+
+	[git-blog](https://jms0522.github.io./)
+ 
+ 	 [Notion](https://www.notion.so/b81dc8344f444b6f84dcb2696988c1b1?v=53e3c226d2514c42a1ce0b719266aeb1&pvs=12)
 	
 </details>
 
