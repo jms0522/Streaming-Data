@@ -32,4 +32,4 @@ services:
     networks:
       - network1
     depends_on:
-      - elasticsearch
+      - kafka
