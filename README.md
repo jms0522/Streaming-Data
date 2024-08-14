@@ -44,7 +44,7 @@
 	git clone https://github.com/jms0522/Streaming-Data/.git
 	cd Streaming-Data
 
-### 사전 요구사항
+🕹️ 사전 요구사항
 
 	•	Docker 및 Docker Compose: Docker가 시스템에 설치되어 있어야 합니다.
 	•	Python 3.8+: ETL 스크립트 및 Airflow DAG을 실행하는 데 필요합니다.
