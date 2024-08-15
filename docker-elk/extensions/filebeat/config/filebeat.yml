@@ -1,7 +1,3 @@
-## Filebeat configuration
-## https://github.com/elastic/beats/blob/main/deploy/docker/filebeat.docker.yml
-#
-
 name: filebeat
 
 filebeat.config:
@@ -11,43 +7,27 @@ filebeat.config:
 
 filebeat.autodiscover:
   providers:
-    # The Docker autodiscover provider automatically retrieves logs from Docker
-    # containers as they start and stop.
     - type: docker
       hints.enabled: true
       hints.default_config:
         type: container
         paths:
           - /var/lib/docker/containers/${data.container.id}/*-json.log
-      templates:
-        - condition:
-            contains:
-              docker.container.image: elasticsearch
-          config:
-            - module: elasticsearch
-              server:
-                input:
-                  type: container
-                  paths:
-                    - /var/lib/docker/containers/${data.container.id}/*-json.log
 
 processors:
   - add_cloud_metadata: ~
 
-monitoring:
-  enabled: true
-  elasticsearch:
-    username: beats_system
-    password: ${BEATS_SYSTEM_PASSWORD}
-
-output.elasticsearch:
-  hosts: [ http://elasticsearch:9200 ]
-  username: filebeat_internal
-  password: ${FILEBEAT_INTERNAL_PASSWORD}
-
-## HTTP endpoint for health checking
-## https://www.elastic.co/guide/en/beats/filebeat/current/http-endpoint.html
-#
+output.kafka:
+  hosts: 
+    - "kafka-1:29092"
+    - "kafka-2:29093"
+    - "kafka-3:29094"
+  topic: "filebeat"
+  partition.round_robin:
+    reachable_only: false
+  required_acks: 1
+  compression: gzip
+  max_message_bytes: 1000000
 
 http:
   enabled: true

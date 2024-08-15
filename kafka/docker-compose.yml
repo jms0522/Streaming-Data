@@ -7,6 +7,8 @@ services:
     environment:
       ZOOKEEPER_CLIENT_PORT: 32181
       ZOOKEEPER_TICK_TIME: 2000
+    networks:
+      - network1
 
   kafka-1:
     image: confluentinc/cp-kafka:latest
@@ -22,6 +24,8 @@ services:
       KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka-1:29092,EXTERNAL://localhost:9092
       KAFKA_DEFAULT_REPLICATION_FACTOR: 3
       KAFKA_NUM_PARTITIONS: 3
+    networks:
+      - network1
 
   kafka-2:
     image: confluentinc/cp-kafka:latest
@@ -37,6 +41,8 @@ services:
       KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka-2:29093,EXTERNAL://localhost:9093
       KAFKA_DEFAULT_REPLICATION_FACTOR: 3
       KAFKA_NUM_PARTITIONS: 3
+    networks:
+      - network1
 
   kafka-3:
     image: confluentinc/cp-kafka:latest
@@ -52,6 +58,8 @@ services:
       KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka-3:29094,EXTERNAL://localhost:9094
       KAFKA_DEFAULT_REPLICATION_FACTOR: 3
       KAFKA_NUM_PARTITIONS: 3
+    networks:
+      - network1
 
   kafka-ui:
     image: provectuslabs/kafka-ui
@@ -62,4 +70,10 @@ services:
     environment:
       - KAFKA_CLUSTERS_0_NAME=local
       - KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS=kafka-1:29092,kafka-2:29093,kafka-3:29094
-      - KAFKA_CLUSTERS_0_ZOOKEEPER=zookeeper-1:22181
+      - KAFKA_CLUSTERS_0_ZOOKEEPER=zookeeper-1:32181
+    networks:
+      - network1
+
+networks:
+  network1:
+    external: true
