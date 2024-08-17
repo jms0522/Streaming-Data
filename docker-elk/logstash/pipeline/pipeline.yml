@@ -1,0 +1,2 @@
+- pipeline.id: container_logs_pipeline
+  path.config: "/usr/share/logstash/pipeline/container-logs.conf"
