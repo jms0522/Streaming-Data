@@ -19,10 +19,10 @@ headers = {
 response = requests.get(url, headers=headers, params=querystring)
 
 # Kafka Producer 설정
-kafka_broker = "localhost:9092"  # Kafka 브로커의 주소
+kafka_brokers = "localhost:9092,localhost:9093,localhost:9094"  # 모든 Kafka 브로커 주소 추가
 topic_name = "instagram_scrapper_api"  # 생성한 토픽 이름으로 변경
 
-conf = {'bootstrap.servers': kafka_broker}
+conf = {'bootstrap.servers': kafka_brokers}
 producer = Producer(**conf)
 
 # 데이터를 Kafka에 전송하는 함수
