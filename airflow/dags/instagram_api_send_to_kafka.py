@@ -21,7 +21,7 @@ dag = DAG(
 # BashOperator를 사용하여 Python 스크립트 실행
 run_python_script = BashOperator(
     task_id='run_api_send_to_topic_script',
-    bash_command='python /home/ubuntu/streamingdata_project/kafka/api_send_to_topic.py',
+    bash_command='python /opt/airflow/code/api_send_to_topic.py',  # 정확한 스크립트 경로 지정
     dag=dag,
 )
 
