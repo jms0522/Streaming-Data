@@ -1,46 +1,39 @@
-import requests
+from selenium import webdriver
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.chrome.service import Service
+from webdriver_manager.chrome import ChromeDriverManager
 from bs4 import BeautifulSoup
+import time
 from tqdm import tqdm
 
-# 특정 제품의 URL
-url = 'https://www.coupang.com/vp/products/5877809049?itemId=10301141729&vendorItemId=77583447249&sourceType=cmgoms&omsPageId=113731&omsPageUrl=113731&isAddedCart='
+# Selenium 설정
+options = webdriver.ChromeOptions()
+options.add_argument("--headless")  # 헤드리스 모드
+options.add_argument("--disable-gpu")
+options.add_argument("--disable-blink-features=AutomationControlled")  # 봇 감지 차단
 
-# 웹 페이지 요청 및 BeautifulSoup 파싱
-response = requests.get(url)
-soup = BeautifulSoup(response.content, 'html.parser')
+# 크롬 드라이버 설정
+driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
 
-# 모든 리뷰(article 태그)를 찾기ㅋ
-review_articles = soup.find_all('article', class_='sdp-review__article__list')
+# 크롤링할 URL
+url = "https://www.coupang.com/vp/products/7440092608?itemId=19344788853&vendorItemId=86458206298&sourceType=cmgoms&omsPageId=113731&omsPageUrl=113731&isAddedCart="
+driver.get(url)
 
-# 리뷰 정보를 저장할 리스트
-reviews = []
+# 페이지 로딩 대기
+time.sleep(2)
 
-# 리뷰 파싱 및 진행률 표시
-for article in tqdm(review_articles, desc="Processing reviews"):
-    # 사용자 이름과 ID
-    user_info = article.find('span', class_='sdp-review__article__list__info__user__name')
-    user_name = user_info.get_text(strip=True)
-    user_id = user_info['data-member-id']
+# 스크롤을 끝까지 내리기
+for _ in tqdm(range(10), desc="스크롤 진행 중"):
+    driver.find_element_by_tag_name('body').send_keys(Keys.END)
+    time.sleep(2)  # 각 스크롤 후 대기 시간
 
-    # 제품 이름
-    product_name = article.find('div', class_='sdp-review__article__list__info__product-info__name').get_text(strip=True)
+# 페이지 소스 가져오기
+soup = BeautifulSoup(driver.page_source, 'html.parser')
 
-    # 리뷰 내용
-    review_content = article.find('div', class_='sdp-review__article__list__review__content').get_text(strip=True)
-
-    # 도움이 된 사람 수
-    helpful_count = article.find('span', class_='js_reviewArticleHelpfulCount').get_text(strip=True)
-
-    # 리뷰 정보를 딕셔너리로 저장
-    review_data = {
-        "user_id": user_id,
-        "user_name": user_name,
-        "product_name": product_name,
-        "review_content": review_content,
-        "helpful_count": helpful_count
-    }
-    reviews.append(review_data)
-
-# 결과 출력
+# 리뷰 가져오기
+reviews = soup.find_all("div", class_="sdp-review__article__list__review__content")
 for review in reviews:
-    print(review)
+    print(review.get_text(strip=True))
+
+# 브라우저 닫기
+driver.quit()
