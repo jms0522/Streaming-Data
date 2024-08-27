@@ -8,9 +8,9 @@ from modules.send_to_kafka import send_to_kafka
 default_args = {
     'owner': 'airflow',
     'depends_on_past': False,
-    'start_date': datetime(2023, 1, 1),
+    'start_date': datetime(2024, 8, 1),
     'retries': 1,
-    'retry_delay': timedelta(minutes=5),
+    'retry_delay': timedelta(minutes=5)
 }
 
 # DAG 정의
@@ -19,6 +19,8 @@ dag = DAG(
     default_args=default_args,
     description='DAG to generate fake data and send to Kafka',
     schedule_interval='@daily',  # 매일 실행
+    catchup=False,
+    max_active_runs=2, 
 )
 
 # Task 1: Fake 데이터를 생성하는 작업
