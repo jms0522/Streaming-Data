@@ -16,7 +16,7 @@ default_args = {
     'depends_on_past': False,
     'start_date': datetime(2024, 8, 28),
     'retries': 1,
-    'retry_delay': timedelta(minutes=5)
+    'retry_delay': timedelta(minutes=3)
 }
 
 dag = DAG(
