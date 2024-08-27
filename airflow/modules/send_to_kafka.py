@@ -1,6 +1,8 @@
 from confluent_kafka import Producer
 import json
 from modules.generate_fake_data import generate_fake_data
+from airflow import DAG
+from airflow.operators.python import PythonOperator
 
 bootstrap_servers = 'kafka:9092,kafka:9093,kafka:9094'
 topic = 'fake-data'

@@ -1,6 +1,8 @@
 from faker import Faker
 import shortuuid
 from datetime import datetime
+from airflow import DAG
+from airflow.operators.python import PythonOperator
 
 def create_fake_user() -> dict:
     fake = Faker()
