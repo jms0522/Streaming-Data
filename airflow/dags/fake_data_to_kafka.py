@@ -1,11 +1,10 @@
 from airflow import DAG
 from airflow.operators.python import PythonOperator
 from datetime import datetime, timedelta
-from modules.generate_fake_data import generate_fake_data
-from sqlalchemy import create_engine, Table, Column, Integer, MetaData
-from sqlalchemy.dialects.postgresql import JSONB
-from modules.send_to_kafka import send_to_kafka
+from sqlalchemy import create_engine, Table, MetaData
 from airflow.exceptions import AirflowException
+from modules.generate_fake_data import generate_fake_data
+from modules.send_to_kafka import send_to_kafka
 
 # Postgres 연결 설정
 DATABASE_URI = 'postgresql+psycopg2://airflow:airflow@postgres/airflow'
@@ -16,7 +15,7 @@ default_args = {
     'depends_on_past': False,
     'start_date': datetime(2024, 8, 28),
     'retries': 1,
-    'retry_delay': timedelta(minutes=3)
+    'retry_delay': timedelta(minutes=3),
 }
 
 dag = DAG(
@@ -31,14 +30,13 @@ dag = DAG(
 # Task 1: Fake 데이터를 생성하고 Postgres에 저장하는 작업
 def task_generate_and_store_fake_data():
     try:
-        data = generate_fake_data(30)
+        data = generate_fake_data(30)  # 30개의 Fake 데이터 생성
         engine = create_engine(DATABASE_URI)
-        metadata = MetaData()
+        metadata = MetaData(bind=engine)
         fake_data_table = Table('fake_data', metadata, autoload_with=engine)
 
-        with engine.connect() as conn:
-            for user in data:
-                conn.execute(fake_data_table.insert().values(data=user))
+        with engine.begin() as conn:
+            conn.execute(fake_data_table.insert(), [{'data': user} for user in data])
     except Exception as e:
         raise AirflowException(f"Error in task_generate_and_store_fake_data: {str(e)}")
 
@@ -52,7 +50,7 @@ generate_data = PythonOperator(
 def task_send_to_kafka():
     try:
         engine = create_engine(DATABASE_URI)
-        metadata = MetaData()
+        metadata = MetaData(bind=engine)
         fake_data_table = Table('fake_data', metadata, autoload_with=engine)
 
         with engine.connect() as conn:
