@@ -11,7 +11,10 @@ services:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_SERVER_ID: 1
       ZOOKEEPER_SERVERS: zoo1:2888:3888
-
+    networks:
+      - network1
+    extra_hosts:
+      - "stream:43.203.251.64"
 
   kafka1:
     image: confluentinc/cp-kafka:7.3.2
@@ -31,6 +34,10 @@ services:
       KAFKA_ALLOW_EVERYONE_IF_NO_ACL_FOUND: "true"
     depends_on:
       - zoo1
+    networks:
+      - network1
+    extra_hosts:
+      - "stream:43.203.251.64"
 
   kafka2:
     image: confluentinc/cp-kafka:7.3.2
@@ -50,7 +57,10 @@ services:
       KAFKA_ALLOW_EVERYONE_IF_NO_ACL_FOUND: "true"
     depends_on:
       - zoo1
-
+    networks:
+      - network1
+    extra_hosts:
+      - "stream:43.203.251.64"
 
   kafka3:
     image: confluentinc/cp-kafka:7.3.2
@@ -70,3 +80,11 @@ services:
       KAFKA_ALLOW_EVERYONE_IF_NO_ACL_FOUND: "true"
     depends_on:
       - zoo1
+    networks:
+      - network1
+    extra_hosts:
+      - "stream:43.203.251.64"
+
+networks:
+  network1:
+    external: true
