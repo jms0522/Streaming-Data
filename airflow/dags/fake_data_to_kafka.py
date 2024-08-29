@@ -6,6 +6,9 @@ from airflow.exceptions import AirflowException
 from modules.generate_fake_data import generate_fake_data
 from modules.send_to_kafka import send_to_kafka
 
+# Kafka 클러스터 설정
+KAFKA_BROKERS = "kafka1:29092,kafka2:29093,kafka3:29094"
+
 # Postgres 연결 설정
 DATABASE_URI = 'postgresql+psycopg2://airflow:airflow@postgres/airflow'
 
@@ -14,8 +17,11 @@ default_args = {
     'owner': 'airflow',
     'depends_on_past': False,
     'start_date': datetime(2024, 8, 28),
-    'retries': 1,
-    'retry_delay': timedelta(minutes=3),
+    'retries': 3,
+    'retry_delay': timedelta(minutes=5),
+    'execution_timeout': timedelta(minutes=15),
+    'task_concurrency': 1,
+    'max_active_runs': 1,
 }
 
 dag = DAG(
@@ -24,7 +30,6 @@ dag = DAG(
     description='DAG to generate fake data and send to Kafka',
     schedule_interval='@daily',
     catchup=False,
-    max_active_runs=2,
 )
 
 # Task 1: Fake 데이터를 생성하고 Postgres에 저장하는 작업
@@ -56,7 +61,7 @@ def task_send_to_kafka():
         with engine.connect() as conn:
             result = conn.execute(fake_data_table.select())
             for row in result:
-                send_to_kafka('fake-data', row['data'])
+                send_to_kafka('fake-data', row['data'], brokers=KAFKA_BROKERS)
     except Exception as e:
         raise AirflowException(f"Error in task_send_to_kafka: {str(e)}")
 
@@ -64,7 +69,7 @@ send_data = PythonOperator(
     task_id='send_data',
     python_callable=task_send_to_kafka,
     dag=dag,
-    execution_timeout=timedelta(minutes=15)
+    execution_timeout=timedelta(minutes=10),
 )
 
 # Task의 실행 순서 정의
