@@ -1,16 +1,8 @@
 from airflow import DAG
 from airflow.operators.python import PythonOperator
 from datetime import datetime, timedelta
-from sqlalchemy import create_engine, Table, MetaData
-from airflow.exceptions import AirflowException
 from modules.generate_fake_data import generate_fake_data
 from modules.send_to_kafka import send_to_kafka
-
-# Kafka 클러스터 설정
-KAFKA_BROKERS = "kafka1:29092,kafka2:29093,kafka3:29094"
-
-# Postgres 연결 설정
-DATABASE_URI = 'postgresql+psycopg2://airflow:airflow@postgres/airflow'
 
 # 기본 DAG 설정
 default_args = {
@@ -20,8 +12,6 @@ default_args = {
     'retries': 3,
     'retry_delay': timedelta(minutes=5),
     'execution_timeout': timedelta(minutes=15),
-    'task_concurrency': 1,
-    'max_active_runs': 1,
 }
 
 dag = DAG(
@@ -32,45 +22,26 @@ dag = DAG(
     catchup=False,
 )
 
-# Task 1: Fake 데이터를 생성하고 Postgres에 저장하는 작업
-def task_generate_and_store_fake_data():
-    try:
-        data = generate_fake_data(30)  # 30개의 Fake 데이터 생성
-        engine = create_engine(DATABASE_URI)
-        metadata = MetaData(bind=engine)
-        fake_data_table = Table('fake_data', metadata, autoload_with=engine)
+# Task 1: Fake 데이터를 생성
+def task_generate_fake_data():
+    return generate_fake_data(30)
 
-        with engine.begin() as conn:
-            conn.execute(fake_data_table.insert(), [{'data': user} for user in data])
-    except Exception as e:
-        raise AirflowException(f"Error in task_generate_and_store_fake_data: {str(e)}")
+# Task 2: Kafka로 데이터 전송
+def task_send_to_kafka(ti):
+    data = ti.xcom_pull(task_ids='generate_fake_data')
+    for user in data:
+        send_to_kafka('fake-data', user)
 
 generate_data = PythonOperator(
-    task_id='generate_and_store_data',
-    python_callable=task_generate_and_store_fake_data,
+    task_id='generate_fake_data',
+    python_callable=task_generate_fake_data,
     dag=dag,
 )
-
-# Task 2: Postgres에서 데이터를 읽어와 Kafka로 보내는 작업
-def task_send_to_kafka():
-    try:
-        engine = create_engine(DATABASE_URI)
-        metadata = MetaData(bind=engine)
-        fake_data_table = Table('fake_data', metadata, autoload_with=engine)
-
-        with engine.connect() as conn:
-            result = conn.execute(fake_data_table.select())
-            for row in result:
-                send_to_kafka('fake-data', row['data'], brokers=KAFKA_BROKERS)
-    except Exception as e:
-        raise AirflowException(f"Error in task_send_to_kafka: {str(e)}")
 
 send_data = PythonOperator(
     task_id='send_data',
     python_callable=task_send_to_kafka,
     dag=dag,
-    execution_timeout=timedelta(minutes=10),
 )
 
-# Task의 실행 순서 정의
 generate_data >> send_data
