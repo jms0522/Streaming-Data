@@ -14,7 +14,7 @@ services:
     networks:
       - network1
     extra_hosts:
-      - "stream:43.203.251.64"
+      - "stream:13.209.16.154"
 
   kafka1:
     image: confluentinc/cp-kafka:7.3.2
@@ -37,7 +37,7 @@ services:
     networks:
       - network1
     extra_hosts:
-      - "stream:43.203.251.64"
+      - "stream:13.209.16.154"
 
   kafka2:
     image: confluentinc/cp-kafka:7.3.2
@@ -60,7 +60,7 @@ services:
     networks:
       - network1
     extra_hosts:
-      - "stream:43.203.251.64"
+      - "stream:13.209.16.154"
 
   kafka3:
     image: confluentinc/cp-kafka:7.3.2
@@ -83,7 +83,7 @@ services:
     networks:
       - network1
     extra_hosts:
-      - "stream:43.203.251.64"
+      - "stream:13.209.16.154"
 
 networks:
   network1:
