@@ -7,6 +7,8 @@ import shortuuid
 from datetime import datetime
 from airflow.utils.dates import days_ago
 import os
+import requests
+from dotenv import load_dotenv
 
 # 가짜 데이터 생성
 def create_fake_user() -> dict:
@@ -78,15 +80,25 @@ def insert_data_into_postgres(**context):
     cursor.close()
     conn.close()
 
+load_dotenv('/home/ubuntu/streamingdata_project/airflow/.env')
 
 # 성공 시 Slack 알림 전송
 def send_slack_notification(**context):
     completion_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    slack_msg = f"Data Generate -> Insert to Postgres. Success Time : {completion_time}"
+    slack_msg = f"Data Generate -> Insert to Postgres. Success Time: {completion_time}"
 
-    # Slack Hook을 통해 메시지 전송
-    slack_hook = SlackHook(slack_conn_id='slack_webhook')
-    slack_hook.call("chat.postMessage", json={"channel": "#alerts", "text": slack_msg)})
+    # .env에서 Webhook URL 가져오기
+    webhook_url = os.getenv('SLACK_WEBHOOK_URL')
+
+    # Webhook 요청을 통해 메시지 전송
+    payload = {
+        "text": slack_msg,
+        "channel": "#alerts"
+    }
+    response = requests.post(webhook_url, json=payload)
+
+    if response.status_code != 200:
+        raise ValueError(f"Request to Slack returned an error {response.status_code}, the response is: {response.text}")
 
 # 실패 시 Slack 알림 전송
 def task_failure_alert(context):
@@ -95,11 +107,21 @@ def task_failure_alert(context):
     task_id = task_instance.task_id
     execution_date = context.get('execution_date')
 
-    slack_msg = f"Task failed: DAG {dag_id}, Task {task_id}"
+    slack_msg = f"Task failed: DAG {dag_id}, Task {task_id}, Execution Date: {execution_date}"
 
-    # Slack Hook을 통해 메시지 전송
-    slack_hook = SlackHook(slack_conn_id='slack_webhook')
-    slack_hook.call("chat.postMessage", json={"channel": "#alerts", "text": slack_msg})
+    # .env에서 Webhook URL 가져오기
+    webhook_url = os.getenv('SLACK_WEBHOOK_URL')
+
+    # Webhook 요청을 통해 메시지 전송
+    payload = {
+        "text": slack_msg,
+        "channel": "#alerts"
+    }
+    response = requests.post(webhook_url, json=payload)
+
+    if response.status_code != 200:
+        raise ValueError(f"Request to Slack returned an error {response.status_code}, the response is: {response.text}")
+
 # DAG 기본 설정
 default_args = {
     'owner': 'airflow',
