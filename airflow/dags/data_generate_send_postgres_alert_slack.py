@@ -27,16 +27,18 @@ def create_fake_user() -> dict:
 
     return fake_dict
 
-def generate_fake_data(num_records: int, **context) -> list:
+def generate_fake_data(num_records: int, **context):
     fake_users = []
     for _ in range(num_records):
         user = create_fake_user()
         fake_users.append(user)
-    return fake_users
+    
+    # XCom에 데이터 전달
+    context['ti'].xcom_push(key='fake_data', value=fake_users)
 
 # PostgreSQL에 데이터 삽입
 def insert_data_into_postgres(**context):
-    fake_data = context['ti'].xcom_pull(task_ids='generate_fake_data')
+    fake_data = context['ti'].xcom_pull(key='fake_data', task_ids='generate_fake_data')
     postgres_hook = PostgresHook(postgres_conn_id='postgres_connector')
     conn = postgres_hook.get_conn()
     cursor = conn.cursor()
@@ -100,11 +102,10 @@ def task_failure_alert(context):
     log_url = task_instance.log_url
 
     slack_msg = f"""
-    :red_circle: Task Failed.
+    Task Failed.
     *DAG*: {dag_id}
     *Task*: {task_id}
     *Execution Time*: {execution_date}
-    *Log URL*: {log_url}
     """
 
     slack_alert = SlackAPIPostOperator(
@@ -137,22 +138,19 @@ with DAG(
     generate_fake_data_task = PythonOperator(
         task_id='generate_fake_data',
         python_callable=generate_fake_data,
-        op_args=[1000],  # 생성할 데이터 수 설정하기
-        provide_context=True
+        op_args=[1000],  # 생성할 데이터 수 설정
     )
 
     # PostgreSQL에 데이터 삽입 Task
     insert_data_task = PythonOperator(
         task_id='insert_data_into_postgres',
         python_callable=insert_data_into_postgres,
-        provide_context=True
     )
 
     # 성공 시 Slack 알림 Task
     slack_notification_task = PythonOperator(
         task_id='send_slack_notification',
         python_callable=send_slack_notification,
-        provide_context=True
     )
 
     # Task 순서 정의
