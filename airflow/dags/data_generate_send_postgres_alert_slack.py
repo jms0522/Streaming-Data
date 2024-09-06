@@ -1,7 +1,7 @@
 from airflow import DAG
 from airflow.operators.python import PythonOperator
 from airflow.providers.postgres.hooks.postgres import PostgresHook
-from airflow.providers.slack.operators.slack import SlackAPIPostOperator
+from airflow.providers.slack.hooks.slack import SlackHook
 from faker import Faker
 import shortuuid
 from datetime import datetime
@@ -78,20 +78,15 @@ def insert_data_into_postgres(**context):
     cursor.close()
     conn.close()
 
+
 # 성공 시 Slack 알림 전송
 def send_slack_notification(**context):
     completion_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    slack_msg = f"데이터 생성 후 데이터베이스 (Postgres)에 저장을 완료했습니다.\n완료 시간: {completion_time}"
+    slack_msg = f"Data Generate -> Insert to Postgres. Success Time : {completion_time}"
 
-    slack_alert = SlackAPIPostOperator(
-        task_id='send_slack_notification',
-        slack_conn_id='slack_webhook',
-        text=slack_msg,
-        channel='#alerts',
-        username='airflow'
-    )
-
-    return slack_alert.execute(context=context)
+    # Slack Hook을 통해 메시지 전송
+    slack_hook = SlackHook(slack_conn_id='slack_webhook')
+    slack_hook.call("chat.postMessage", json={"channel": "#alerts", "text": slack_msg)})
 
 # 실패 시 Slack 알림 전송
 def task_failure_alert(context):
@@ -99,25 +94,12 @@ def task_failure_alert(context):
     dag_id = context.get('dag').dag_id
     task_id = task_instance.task_id
     execution_date = context.get('execution_date')
-    log_url = task_instance.log_url
 
-    slack_msg = f"""
-    Task Failed.
-    *DAG*: {dag_id}
-    *Task*: {task_id}
-    *Execution Time*: {execution_date}
-    """
+    slack_msg = f"Task failed: DAG {dag_id}, Task {task_id}"
 
-    slack_alert = SlackAPIPostOperator(
-        task_id='slack_failure_notification',
-        slack_conn_id='slack_webhook',
-        text=slack_msg,
-        channel='#alerts',
-        username='airflow'
-    )
-
-    return slack_alert.execute(context=context)
-
+    # Slack Hook을 통해 메시지 전송
+    slack_hook = SlackHook(slack_conn_id='slack_webhook')
+    slack_hook.call("chat.postMessage", json={"channel": "#alerts", "text": slack_msg})
 # DAG 기본 설정
 default_args = {
     'owner': 'airflow',
