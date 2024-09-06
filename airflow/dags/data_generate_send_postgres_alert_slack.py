@@ -39,7 +39,7 @@ def generate_fake_data(num_records: int) -> list:
 
 def insert_data_into_postgres(**context):
     fake_data = context['ti'].xcom_pull(task_ids='generate_fake_data')
-    postgres_hook = PostgresHook(postgres_conn_id='postgres_default')
+    postgres_hook = PostgresHook(postgres_conn_id='postgres_connector')
     conn = postgres_hook.get_conn()
     cursor = conn.cursor()
     
