@@ -83,7 +83,7 @@ def insert_data_into_postgres(**context):
 def send_slack_notification(**context):
     completion_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     slack_msg = f"Data Generate -> Insert to Postgres. Success Time: {completion_time}"
-    webhook_url = 'https://hooks.slack.com/services/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'
+    webhook_url = 'https://hooks.slack.com/services/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'
     
     # Webhook 요청을 통해 메시지 전송
     payload = {
@@ -103,7 +103,7 @@ def task_failure_alert(context):
     execution_date = context.get('execution_date')
 
     slack_msg = f"Task failed: DAG {dag_id}, Task {task_id}, Execution Date: {execution_date}"
-    webhook_url = 'https://hooks.slack.com/services/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'
+    webhook_url = 'https://hooks.slack.com/services/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'
 
     # Webhook 요청을 통해 메시지 전송
     payload = {
