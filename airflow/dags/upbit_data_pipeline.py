@@ -16,7 +16,7 @@ def fetch_and_store_markets(**context):
     
     if response.status_code == 200:
         markets_data = response.json()
-        postgres_hook = PostgresHook(postgres_conn_id=postgres_connector)
+        postgres_hook = PostgresHook(postgres_conn_id=POSTGRES_CONN_ID)
         conn = postgres_hook.get_conn()
         cursor = conn.cursor()
 
@@ -47,7 +47,7 @@ def fetch_and_store_markets(**context):
 
 # 업비트에서 각 마켓의 가격 정보 가져와 PostgreSQL에 저장
 def fetch_and_store_prices(**context):
-    postgres_hook = PostgresHook(postgres_conn_id=postgres_connector)
+    postgres_hook = PostgresHook(postgres_conn_id=POSTGRES_CONN_ID)
     conn = postgres_hook.get_conn()
     cursor = conn.cursor()
 
@@ -91,7 +91,7 @@ def fetch_and_store_prices(**context):
 
 # 마켓 데이터와 가격 데이터를 결합하여 최종 테이블에 저장
 def combine_market_and_price_data(**context):
-    postgres_hook = PostgresHook(postgres_conn_id=postgres_connector)
+    postgres_hook = PostgresHook(postgres_conn_id=POSTGRES_CONN_ID)
     conn = postgres_hook.get_conn()
     cursor = conn.cursor()
 
