@@ -8,7 +8,7 @@ import os
 # PostgreSQL 연결 정보
 DB_USER = 'airflow'
 DB_PASSWORD = 'airflow'
-DB_HOST = 'localhost'  # Docker 네트워크 내의 서비스 이름으로 변경 가능
+DB_HOST = '13.125.199.68'  # 실제 PostgreSQL 서버 주소
 DB_PORT = '5432'
 DB_NAME = 'airflow'
 
@@ -16,7 +16,7 @@ DB_NAME = 'airflow'
 MARKET_CSV_PATH = '/home/ubuntu/streamingdata_project/upbit_market_list_20240914-141011.csv'
 DAILY_CANDLES_CSV_PATH = '/home/ubuntu/streamingdata_project/upbit_daily_candles_20240914-142131.csv'
 
-# SQLAlchemy 엔진 생성 (SQLAlchemy 2.x)
+# SQLAlchemy 엔진 생성
 DATABASE_URL = f'postgresql+psycopg2://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}'
 engine = create_engine(DATABASE_URL, echo=True, future=True)
 
@@ -33,16 +33,13 @@ class Market(Base):
 
 class DailyCandle(Base):
     __tablename__ = 'daily_candles'
-    market = Column(String, ForeignKey('markets.market'), nullable=False)
-    candle_date_time_kst = Column(DateTime, nullable=False)
+    market = Column(String, ForeignKey('markets.market'), primary_key=True, nullable=False)
+    candle_date_time_kst = Column(DateTime, primary_key=True, nullable=False)
     opening_price = Column(Float)
     high_price = Column(Float)
     low_price = Column(Float)
     trade_price = Column(Float)
     candle_acc_trade_volume = Column(Float)
-    __table_args__ = (
-        # Primary Key는 이미 설정됨 (market, candle_date_time_kst)
-    )
 
 # 테이블 생성
 Base.metadata.create_all(engine)
@@ -67,7 +64,7 @@ def insert_markets(csv_path, engine):
     # markets 테이블 객체 가져오기
     markets_table = Market.__table__
     
-    # Prepare insert statement with on conflict do nothing
+    # Insert statement with conflict handling
     stmt = insert(markets_table).values(markets_to_insert)
     stmt = stmt.on_conflict_do_nothing(index_elements=['market'])
     
@@ -102,7 +99,7 @@ def insert_daily_candles(csv_path, engine):
     # daily_candles 테이블 객체 가져오기
     candles_table = DailyCandle.__table__
     
-    # Prepare insert statement with on conflict do nothing
+    # Insert statement with conflict handling
     stmt = insert(candles_table).values(candles_records)
     stmt = stmt.on_conflict_do_nothing(index_elements=['market', 'candle_date_time_kst'])
     
