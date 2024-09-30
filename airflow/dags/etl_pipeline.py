@@ -12,7 +12,7 @@ import pandas as pd
 default_args = {
     'owner': 'airflow',
     'depends_on_past': False,
-    'email': ['your_email@company.com'],
+    'email': ['jiseo33668@gmail.com'],
     'email_on_failure': True,
     'email_on_retry': False,
     'retries': 1,
@@ -32,7 +32,7 @@ with DAG(
     extract = SimpleHttpOperator(
         task_id='extract_data',
         method='GET',
-        http_conn_id='external_api',  # Airflow 연결 설정 필요
+        http_conn_id='external_api',  
         endpoint='/data',
         headers={"Content-Type": "application/json"},
         response_filter=lambda response: response.json(),
@@ -60,7 +60,7 @@ with DAG(
         ti = kwargs['ti']
         transformed_data = ti.xcom_pull(task_ids='transform_data', key='transformed_data')
         df = pd.read_json(transformed_data, orient='records')
-        postgres_hook = PostgresHook(postgres_conn_id='postgres_db')
+        postgres_hook = PostgresHook(postgres_conn_id='postgres_connector')
         # 테이블에 데이터 적재
         postgres_hook.insert_rows(
             table='target_table',
@@ -78,7 +78,7 @@ with DAG(
     # PostgreSQL 테이블 생성 (필요 시)
     create_table = PostgresOperator(
         task_id='create_table',
-        postgres_conn_id='postgres_db',
+        postgres_conn_id='postgres_connector',
         sql="""
         CREATE TABLE IF NOT EXISTS target_table (
             id SERIAL PRIMARY KEY,
